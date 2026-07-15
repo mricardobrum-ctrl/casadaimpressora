@@ -5,7 +5,7 @@
 
 const CACHE_NAME = 'cdi-cache-v1';
 const ARQUIVOS_CACHE = [
-  './sistema_casadaimpressora_v18_6_1.html',
+  './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
@@ -63,7 +63,7 @@ self.addEventListener('notificationclick', (event) => {
       for (const client of clientList) {
         if ('focus' in client) return client.focus();
       }
-      if (self.clients.openWindow) return self.clients.openWindow('./sistema_casadaimpressora_v18_6_1.html');
+      if (self.clients.openWindow) return self.clients.openWindow('./index.html');
     })
   );
 });
