@@ -502,6 +502,28 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 }
 .main.no-actionbar{ padding-top:0 !important; }
 
+/* ═══════════════════ RESPONSIVO / MOBILE ═══════════════════ */
+.mobile-menu-btn{
+  display:none;width:34px;height:34px;flex-shrink:0;margin-right:4px;
+  border:1px solid var(--side-border);background:rgba(255,255,255,.07);
+  border-radius:8px;align-items:center;justify-content:center;cursor:pointer;
+}
+.mobile-overlay{display:none}
+.app-sidebar{transition:transform .25s ease}
+
+@media(max-width:860px){
+  .mobile-menu-btn{display:flex}
+  .app-sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.35)}
+  .app-sidebar.open{transform:translateX(0)}
+  .app-content{margin-left:0 !important}
+  .actionbar{left:0 !important}
+  .mobile-overlay.show{
+    display:block;position:fixed;inset:0;top:52px;background:rgba(0,0,0,.5);z-index:99;
+  }
+  /* Esconde a busca no topo pra caber o menu + logo em telas pequenas */
+  .topbar-search{display:none !important}
+}
+
 /* O wrapper flex do conteúdo já tem margin-top:52px pelo padding-top do layout */
 /* Página agente-ia preenche altura restante sem padding extra */
 #page-agente-ia{
@@ -638,8 +660,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
         <div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase">CRM v2.0</div>
       </div>
     </div>
+    <!-- Botão hamburguer (só aparece no celular) -->
+    <button id="mobile-menu-btn" class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Abrir menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--side-text)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+
     <!-- Search bar -->
-    <div style="flex:1;padding:0 20px;max-width:500px">
+    <div class="topbar-search" style="flex:1;padding:0 20px;max-width:500px">
       <div style="position:relative">
         <svg style="position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.35;pointer-events:none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--side-text2)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" placeholder="Buscar clientes, OS, contratos..." style="width:100%;padding:7px 12px 7px 34px;background:var(--side-bg3);border:1px solid var(--side-border);border-radius:8px;font-size:13px;color:var(--side-text);font-family:var(--font);outline:none">
@@ -675,8 +702,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <!-- ══ LAYOUT PRINCIPAL: sidebar + conteúdo ══ -->
   <div style="display:flex;min-height:100vh;padding-top:52px;width:100%;max-width:100vw;overflow-x:hidden">
 
+    <!-- Overlay escuro (só aparece no celular quando o menu está aberto) -->
+    <div id="mobile-overlay" class="mobile-overlay" onclick="toggleMobileSidebar()"></div>
+
     <!-- ── SIDEBAR VERTICAL ── -->
-    <div style="width:220px;flex-shrink:0;background:var(--side-bg);border-right:1px solid var(--side-border);position:fixed;top:52px;bottom:0;left:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;z-index:100">
+    <div id="app-sidebar" class="app-sidebar" style="width:220px;flex-shrink:0;background:var(--side-bg);border-right:1px solid var(--side-border);position:fixed;top:52px;bottom:0;left:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;z-index:100">
 
       <!-- PRINCIPAL -->
       <div style="padding:16px 12px 6px">
@@ -760,7 +790,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     </div>
 
     <!-- ── CONTEÚDO PRINCIPAL ── -->
-    <div style="flex:1;margin-left:220px;min-height:calc(100vh - 52px);display:flex;flex-direction:column;position:relative">
+    <div class="app-content" style="flex:1;margin-left:220px;min-height:calc(100vh - 52px);display:flex;flex-direction:column;position:relative">
 
       <!-- Barra de ação (subtítulo + botão) -->
       <div class="actionbar" id="actionbar" style="left:220px">
@@ -9074,7 +9104,7 @@ function confirmarScan(val) {
   if (scanEl)  scanEl.value = val;
   if (valEl)   valEl.textContent = val;
   if (preview) preview.style.display = 'flex';
-  if (status)  { status.textContent = '\u2705 C�digo lido com sucesso!'; status.style.color = '#16a34a'; }
+  if (status)  { status.textContent = '\u2705 C digo lido com sucesso!'; status.style.color = '#16a34a'; }
 
   // Piscar borda verde por feedback visual
   if (scanEl) {
@@ -10843,6 +10873,28 @@ function enviarAditivoWhatsApp(){
     window.open('https://api.whatsapp.com/send?phone=55'+telLimpo+'&text='+encodeURIComponent(msg),'_blank');
   }, 900);
 }
+</script>
+
+<!-- ═══ MENU MOBILE: abrir/fechar sidebar em telas pequenas ═══ -->
+<script>
+function toggleMobileSidebar(){
+  var sb = document.getElementById('app-sidebar');
+  var ov = document.getElementById('mobile-overlay');
+  if(!sb || !ov) return;
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+function closeMobileSidebar(){
+  var sb = document.getElementById('app-sidebar');
+  var ov = document.getElementById('mobile-overlay');
+  if(!sb || !ov) return;
+  sb.classList.remove('open');
+  ov.classList.remove('show');
+}
+// Fecha o menu automaticamente ao escolher uma página (só importa no celular)
+document.addEventListener('click', function(e){
+  if(e.target.closest('.snav-item')) closeMobileSidebar();
+});
 </script>
 
 <!-- ═══ PWA: registro do Service Worker ═══ -->
